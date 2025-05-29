@@ -1,0 +1,121 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Police personnalisée */
+@font-face {
+  font-family: 'ABCDiatypePixel';
+  src: url('fonts/ABCDiatype-RegularPixelBeta.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Polices Google Fonts */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #ffffff;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Container principal */
+.container {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+/* Zone gauche (connexion) */
+.left {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  position: relative;
+  z-index: 1;
+}
+
+/* Zone droite (image et texte rétro) */
+.right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #000000;
+}
+
+.right::before {
+  content: "";
+  position: absolute;
+  top: -15%;
+  left: -10%;
+  width: 120%;
+  height: 120%;
+  background: url('https://replit.com/cdn-cgi/image/width=4096,quality=80,format=auto/public/images/auth/globe.png') no-repeat center center;
+  background-size: cover;
+  transform: scale(1.3);
+  z-index: 0;
+}
+
+/* Overlay sur la partie image */
+.overlay {
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Texte pixel style rétro */
+.pixel-text {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 18px;
+  color: white;
+  text-shadow: 0 0 8px white;
+  text-align: center;
+}
+
+/* Zone de connexion */
+.login-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* En-tête style Replit */
+.header {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.logo {
+  height: 64px;
+  margin-right: -5px;
+}
+
+.brand-name {
+  font-family: 'ABCDiatypePixel', sans-serif;
+  font-size: 20px;
+  color: black;
+}
+
+/* Footer bas de page */
+.footer {
+  position: absolute;
+  bottom: 5px;
+  left: 10px;
+  font-size: 8px;
+  color: black;
+  font-family: 'Roboto', sans-serif;
+}
