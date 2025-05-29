@@ -2,19 +2,112 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Talk - Roxzy</title>
+  <title>Discussion - Roxzy</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="header">
-    <a href="fr.html">← Back</a>
-    <h1>Talk</h1>
+    <a href="fr.html">← Retour</a>
+    <h1 id="chatTitle">Discussion</h1>
   </header>
 
   <main class="main-content">
-    <p>Page de chat / discussion à développer</p>
+    <div id="userInfo" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;"></div>
+
+    <div id="chatMessages" style="height: 300px; overflow-y: auto; background:#222; padding:10px; border-radius:8px; color:white;"></div>
+
+    <form id="chatForm" style="margin-top: 10px;">
+      <input type="text" id="chatInput" placeholder="Écrire un message..." autocomplete="off" required style="width: 80%; padding: 8px; border-radius: 6px; border:none;" />
+      <button type="submit" style="padding: 8px 12px; border-radius: 6px; border:none; background:#00ffea; color:#000; font-weight:bold; cursor:pointer;">Envoyer</button>
+    </form>
   </main>
 
   <footer class="footer">© 2025 Roxzy</footer>
+
+  <script>
+    function getUserByPseudo(pseudo) {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      return users.find(u => u.pseudo.toLowerCase() === pseudo.toLowerCase());
+    }
+
+    function loadCurrentUser() {
+      const currentUserId = localStorage.getItem("currentUserId");
+      if (!currentUserId) {
+        window.location.href = "index.html";
+        return null;
+      }
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      return users.find(u => u.id === currentUserId);
+    }
+
+    function getChatKey(user1, user2) {
+      // Cle unique par paire d'utilisateurs, ordre alphabétique
+      const arr = [user1.toLowerCase(), user2.toLowerCase()].sort();
+      return `chat_${arr[0]}_${arr[1]}`;
+    }
+
+    window.onload = function () {
+      const params = new URLSearchParams(window.location.search);
+      const targetPseudo = params.get("user");
+      if (!targetPseudo) {
+        alert("Utilisateur introuvable");
+        window.location.href = "fr.html";
+        return;
+      }
+
+      const targetUser = getUserByPseudo(targetPseudo);
+      if (!targetUser) {
+        alert("Utilisateur introuvable");
+        window.location.href = "fr.html";
+        return;
+      }
+
+      const currentUser = loadCurrentUser();
+      if (!currentUser) return;
+
+      // Affiche infos user cible
+      const userInfoDiv = document.getElementById("userInfo");
+      userInfoDiv.innerHTML = `
+        <img src="${targetUser.picture}" alt="Avatar" style="height:50px; width:50px; border-radius:50%;" />
+        <div>
+          <strong>${targetUser.pseudo}</strong><br />
+          <small>${targetUser.bio || "Pas de bio"}</small>
+        </div>
+      `;
+
+      document.getElementById("chatTitle").textContent = `Discussion avec ${targetUser.pseudo}`;
+
+      const chatMessagesDiv = document.getElementById("chatMessages");
+      const chatForm = document.getElementById("chatForm");
+      const chatInput = document.getElementById("chatInput");
+
+      const chatKey = getChatKey(currentUser.pseudo, targetUser.pseudo);
+      let messages = JSON.parse(localStorage.getItem(chatKey) || "[]");
+
+      function renderMessages() {
+        chatMessagesDiv.innerHTML = "";
+        messages.forEach(m => {
+          const div = document.createElement("div");
+          div.textContent = `${m.from}: ${m.text}`;
+          div.style.marginBottom = "6px";
+          div.style.color = (m.from === currentUser.pseudo) ? "#00ffea" : "white";
+          chatMessagesDiv.appendChild(div);
+        });
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+      }
+
+      renderMessages();
+
+      chatForm.onsubmit = function (e) {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (!text) return;
+        messages.push({ from: currentUser.pseudo, text });
+        localStorage.setItem(chatKey, JSON.stringify(messages));
+        chatInput.value = "";
+        renderMessages();
+      };
+    };
+  </script>
 </body>
 </html>
