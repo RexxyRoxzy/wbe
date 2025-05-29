@@ -3,141 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <title>Paramètres - Roxzy</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <header class="header">
-    <a href="fr.html">← Retour</a>
-    <h1>Paramètres du compte</h1>
-  </header>
 
-  <main class="main-content">
-    <form id="settingsForm">
-      <label>
-        Pseudo:<br />
-        <input type="text" id="pseudoInput" required minlength="3" />
-      </label>
-      <br /><br />
-      <label>
-        Bio:<br />
-        <textarea id="bioInput" rows="4" placeholder="Ta bio ici..."></textarea>
-      </label>
-      <br /><br />
-      <label>
-        Photo de profil:<br />
-        <input type="file" id="avatarInput" accept="image/*" />
-      </label>
-      <br /><br />
-      <button type="submit">Sauvegarder</button>
+  <div class="header">
+    <img src="icon.png" alt="Logo" class="logo" />
+    <span class="brand-name">roxzy</span>
+  </div>
+
+  <div class="container" style="flex-direction: column; padding: 20px; gap: 20px;">
+
+    <h1 style="font-family:'Press Start 2P', cursive; text-align:center;">Settings</h1>
+
+    <form id="settingsForm" style="max-width: 500px; margin:auto; display:flex; flex-direction: column; gap: 15px;">
+      <label>Pseudo (unique) :</label>
+      <input type="text" id="username" placeholder="Enter your username" required />
+
+      <label>Bio :</label>
+      <textarea id="bio" placeholder="Tell us about yourself" rows="4" style="resize:none;"></textarea>
+
+      <label>Changer photo de profil (URL) :</label>
+      <input type="url" id="profileUrl" placeholder="Image URL" />
+
+      <button type="submit" class="btn" style="align-self: center; width: 150px;">Save</button>
     </form>
-    <br />
-    <button id="logoutBtn">Se déconnecter</button>
-    <p id="msg" style="color:red;"></p>
-  </main>
 
-  <footer class="footer">© 2025 Roxzy</footer>
+    <div id="msg" style="text-align:center; margin-top: 10px;"></div>
+
+    <div style="text-align:center; margin-top: 30px;">
+      <a href="fr.html" class="btn">Back to Home</a>
+    </div>
+  </div>
+
+  <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
 
   <script>
-    function loadCurrentUser() {
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      const currentUserId = localStorage.getItem("currentUserId");
-      if (!currentUserId) {
-        window.location.href = "index.html";
-        return null;
-      }
-      const user = users.find(u => u.id === currentUserId);
-      if (!user) {
-        window.location.href = "index.html";
-        return null;
-      }
-      return {user, users};
+    const form = document.getElementById("settingsForm");
+    const msg = document.getElementById("msg");
+
+    // Récupérer token & user data depuis localStorage
+    const token = localStorage.getItem("google_token");
+
+    if (!token) {
+      window.location.href = "index.html";
     }
 
-    function isPseudoUnique(pseudo, users, currentUserId) {
-      return !users.some(u => u.pseudo.toLowerCase() === pseudo.toLowerCase() && u.id !== currentUserId);
+    function decodeJwtResponse(token) {
+      let base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      return JSON.parse(jsonPayload);
     }
 
-    window.onload = function () {
-      const data = loadCurrentUser();
-      if (!data) return;
-      const {user, users} = data;
+    const user = decodeJwtResponse(token);
 
-      const pseudoInput = document.getElementById("pseudoInput");
-      const bioInput = document.getElementById("bioInput");
-      const avatarInput = document.getElementById("avatarInput");
-      const msg = document.getElementById("msg");
+    // Stockage local "usersData" JSON dans localStorage pour simuler base de données
+    let usersData = JSON.parse(localStorage.getItem("usersData") || "{}");
 
-      pseudoInput.value = user.pseudo;
-      bioInput.value = user.bio;
+    // Charger les données de l'utilisateur connecté
+    if (usersData[user.sub]) {
+      document.getElementById("username").value = usersData[user.sub].username || "";
+      document.getElementById("bio").value = usersData[user.sub].bio || "";
+      document.getElementById("profileUrl").value = usersData[user.sub].profileUrl || user.picture || "";
+    } else {
+      // Valeurs par défaut
+      document.getElementById("profileUrl").value = user.picture || "";
+    }
 
-      avatarInput.addEventListener("change", () => {
-        const file = avatarInput.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          user.picture = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const bio = document.getElementById("bio").value.trim();
+      const profileUrl = document.getElementById("profileUrl").value.trim();
 
-      document.getElementById("settingsForm").onsubmit = function (e) {
-        e.preventDefault();
-        const newPseudo = pseudoInput.value.trim();
-        if (newPseudo.length < 3) {
-          msg.textContent = "Pseudo trop court (min 3 caractères).";
+      // Vérifier unicité du pseudo
+      for (const key in usersData) {
+        if (usersData[key].username === username && key !== user.sub) {
+          msg.style.color = "red";
+          msg.textContent = "Ce pseudo est déjà pris, choisis-en un autre.";
           return;
         }
-        if (!isPseudoUnique(newPseudo, users, user.id)) {
-          msg.textContent = "Pseudo déjà pris, choisis-en un autre.";
-          return;
-        }
-        user.pseudo = newPseudo;
-        user.bio = bioInput.value.trim();
+      }
 
-        // Save back
-        localStorage.setItem("users", JSON.stringify(users));
-        msg.style.color = "green";
-        msg.textContent = "Modifications sauvegardées !";
-
-        setTimeout(() => {
-          msg.textContent = "";
-        }, 3000);
+      usersData[user.sub] = {
+        username,
+        bio,
+        profileUrl: profileUrl || user.picture,
       };
 
-      document.getElementById("logoutBtn").onclick = function () {
-        localStorage.removeItem("currentUserId");
-        window.location.href = "index.html";
-      };
-    };
+      localStorage.setItem("usersData", JSON.stringify(usersData));
+      msg.style.color = "green";
+      msg.textContent = "Données sauvegardées avec succès !";
+    });
   </script>
 
-  <style>
-    form label {
-      color: white;
-      font-weight: bold;
-    }
-
-    input, textarea {
-      width: 100%;
-      max-width: 400px;
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-    }
-
-    body {
-      background: #121212;
-      color: white;
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-
-    .header a {
-      color: #00ffea;
-      text-decoration: none;
-      font-weight: bold;
-    }
-  </style>
 </body>
 </html>
