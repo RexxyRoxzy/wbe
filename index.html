@@ -2,78 +2,85 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Connexion</title>
+  <title>Accueil - Roxzy</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
+
   <div class="header">
     <img src="icon.png" alt="Logo" class="logo" />
     <span class="brand-name">roxzy</span>
+
+    <div id="profile-container" style="margin-left:auto; display:flex; align-items:center; gap:10px; cursor:pointer;" title="Settings">
+      <img id="profile-pic" src="" alt="Profil" style="height:40px; width:40px; border-radius:50%; object-fit:cover;" />
+    </div>
   </div>
 
-  <div class="container">
-    <div class="left">
-      <div class="login-box">
-        <form id="loginForm" action="/auth" method="POST">
-          <div id="buttonDiv"></div>
+  <div class="container" style="flex-direction: column; padding: 20px; gap: 20px;">
+    <h1 style="font-family:'Press Start 2P', cursive; text-align:center; margin-bottom: 20px;">
+      Welcome to Roxzy
+    </h1>
+    <p style="max-width: 800px; margin: auto; font-size: 18px; line-height: 1.5; text-align:center;">
+      Roxzy helps you create Discord bots easily with cool features and a great community.
+      Explore the possibilities, share your creations, and connect with others.
+    </p>
 
-          <button
-            id="recaptchaBtn"
-            class="g-recaptcha"
-            data-sitekey="6LeleU4rAAAAAM8_J9QzpRHtIQxJ2aQstW3-UQFZ"
-            data-callback="onSubmit"
-            data-size="invisible"
-            style="display:none"
-          >
-            Submit
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <div class="right">
-      <div class="overlay">
-        <p class="pixel-text">Energy, to Symetry.</p>
-      </div>
+    <div style="display:flex; justify-content:center; gap: 40px; margin-top: 40px;">
+      <a href="search.html" class="btn">Search Users</a>
+      <a href="talk.html/guest" class="btn">Talk (Chat)</a>
+      <a href="settings.html" class="btn">Settings</a>
     </div>
   </div>
 
   <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
 
   <script>
-    // Lorsque Google Sign-In réussit, on stocke le token et lance reCAPTCHA invisible
-    function handleCredentialResponse(response) {
-      console.log("Encoded JWT ID token: ", response.credential);
-      localStorage.setItem("google_token", response.credential);
-      grecaptcha.execute();
+    // Affiche la photo profil Google stockée dans localStorage
+    const profilePic = document.getElementById("profile-pic");
+    const profileContainer = document.getElementById("profile-container");
+
+    function decodeJwtResponse(token) {
+      let base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
     }
 
-    // Callback reCAPTCHA : on soumet le formulaire et on redirige après délai
-    function onSubmit(token) {
-      // Si tu veux envoyer le token reCAPTCHA au serveur, ajoute-le dans le form ici
-      // Par exemple : document.getElementById("loginForm").submit();
-      setTimeout(() => {
-        window.location.href = "fr.html";
-      }, 300);
+    const token = localStorage.getItem("google_token");
+    if (!token) {
+      // pas connecté, renvoyer à la page login
+      window.location.href = "index.html";
+    } else {
+      const payload = decodeJwtResponse(token);
+      profilePic.src = payload.picture || "default-profile.png";
+      // clic sur image = settings
+      profileContainer.onclick = () => {
+        window.location.href = "settings.html";
+      };
     }
-
-    window.onload = function () {
-      google.accounts.id.initialize({
-        client_id: "771271933453-7b05smqssd08ersoov0qkph1t88gqeaj.apps.googleusercontent.com",
-        callback: handleCredentialResponse,
-      });
-
-      google.accounts.id.renderButton(document.getElementById("buttonDiv"), {
-        theme: "filled_white",
-        size: "large",
-        shape: "pill",
-      });
-    };
   </script>
+
+  <style>
+    .btn {
+      text-decoration: none;
+      padding: 12px 25px;
+      background-color: #000000;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      border-radius: 12px;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    .btn:hover {
+      background-color: #444444;
+    }
+  </style>
 </body>
 </html>
