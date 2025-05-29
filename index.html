@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+  
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
@@ -23,10 +24,12 @@
       <div class="login-box">
         <form id="loginForm" action="/auth" method="POST">
           <div id="buttonDiv"></div>
+
+          <!-- reCAPTCHA invisible -->
           <button 
             id="recaptchaBtn"
             class="g-recaptcha"
-            data-sitekey="6LeleU4rAAAAAM8_J9QzpRHtIQxJ2aQstW3-UQFZ"
+            data-sitekey="6LdmgU4rAAAAAOd31xmlC4hcR8QSvPTvRE9L0_xl"  <!-- ta clé site actuelle -->
             data-callback="onSubmit"
             data-size="invisible"
             style="display: none;">
@@ -47,12 +50,13 @@
   <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
 
   <script>
+    // Quand Google sign-in réussit, on déclenche reCAPTCHA invisible
     function handleCredentialResponse(response) {
       console.log("Encoded JWT ID token: " + response.credential);
-      // Déclenche reCAPTCHA invisible
       grecaptcha.execute();
     }
 
+    // Quand reCAPTCHA valide, on soumet le formulaire
     function onSubmit(token) {
       document.getElementById("loginForm").submit();
     }
