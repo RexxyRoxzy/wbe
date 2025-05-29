@@ -1,45 +1,43 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Roxzy - Connextion</title>
+  <meta charset="UTF-8" />
+  <title>Connexion - Roxzy</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
   
+  <!-- Google One Tap / Sign-In -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <!-- reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
-  <!-- En-tête style Replit -->
   <div class="header">
-    <img src="icon.png" alt="Logo" class="logo">
+    <img src="icon.png" alt="Logo" class="logo" />
     <span class="brand-name">roxzy</span>
   </div>
 
   <div class="container">
-    <!-- Partie Connexion -->
     <div class="left">
       <div class="login-box">
-        <form id="loginForm" action="/auth" method="POST">
+        <form id="loginForm" action="#" method="POST" onsubmit="return false;">
           <div id="buttonDiv"></div>
-
-          <!-- reCAPTCHA invisible -->
-          <button 
-  id="recaptchaBtn"
-  class="g-recaptcha"
-  data-sitekey="6LeleU4rAAAAAM8_J9QzpRHtIQxJ2aQstW3-UQFZ"
-  data-callback="onSubmit"
-  data-size="invisible"
-  style="display: none;">
-</button>
-
+          <!-- reCAPTCHA invisible button -->
+          <button
+            id="recaptchaBtn"
+            class="g-recaptcha"
+            data-sitekey="6LeleU4rAAAAAM8_J9QzpRHtIQxJ2aQstW3-UQFZ"
+            data-callback="onSubmit"
+            data-size="invisible"
+            style="display: none;">
+          </button>
         </form>
       </div>
     </div>
 
-    <!-- Partie Image + Texte rétro -->
     <div class="right">
       <div class="overlay">
         <p class="pixel-text">Energy, to Symetry.</p>
@@ -47,38 +45,38 @@
     </div>
   </div>
 
-  <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
+  <footer class="footer">
+    © 2025 Roxzy. All Rights Reserved. Thanks Replit for The Idea!
+  </footer>
 
   <script>
-    // Quand Google sign-in réussit, on déclenche reCAPTCHA invisible
-function handleCredentialResponse(response) {
-  console.log("Encoded JWT ID token: " + response.credential);
-  // Ici tu peux envoyer le token au serveur si besoin
+    function handleCredentialResponse(response) {
+      console.log("Encoded JWT ID token: " + response.credential);
+      // Ici tu peux envoyer le token au serveur si besoin
 
-  // Puis redirection vers fr.html
-  window.location.href = "fr.html";
-}
+      // Déclencher reCAPTCHA invisible avant la soumission finale
+      grecaptcha.execute();
+    }
 
-
-    // Quand reCAPTCHA valide, on soumet le formulaire
     function onSubmit(token) {
-      document.getElementById("loginForm").submit();
+      // Une fois que reCAPTCHA est validé, rediriger vers fr.html
+      window.location.href = "fr.html";
     }
 
     window.onload = function () {
       google.accounts.id.initialize({
         client_id: "771271933453-7b05smqssd08ersoov0qkph1t88gqeaj.apps.googleusercontent.com",
-        callback: handleCredentialResponse
+        callback: handleCredentialResponse,
       });
 
-      google.accounts.id.renderButton(
-        document.getElementById("buttonDiv"),
-        {
-          theme: "filled_white",
-          size: "large",
-          shape: "pill"
-        }
-      );
+      google.accounts.id.renderButton(document.getElementById("buttonDiv"), {
+        theme: "filled_white",
+        size: "large",
+        shape: "pill",
+      });
+
+      // Optionnel : activer Google One Tap
+      // google.accounts.id.prompt();
     };
   </script>
 </body>
