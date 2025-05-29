@@ -2,19 +2,94 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Search - Roxzy</title>
+  <title>Recherche utilisateurs - Roxzy</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <header class="header">
-    <a href="fr.html">← Back</a>
-    <h1>Search</h1>
-  </header>
 
-  <main class="main-content">
-    <p>Page de recherche à développer</p>
-  </main>
+  <div class="header">
+    <img src="icon.png" alt="Logo" class="logo" />
+    <span class="brand-name">roxzy</span>
 
-  <footer class="footer">© 2025 Roxzy</footer>
+    <div id="profile-container" style="margin-left:auto; display:flex; align-items:center; gap:10px; cursor:pointer;" title="Settings">
+      <img id="profile-pic" src="" alt="Profil" style="height:40px; width:40px; border-radius:50%; object-fit:cover;" />
+    </div>
+  </div>
+
+  <div class="container" style="flex-direction: column; padding: 20px; gap: 20px; max-width: 600px; margin: auto;">
+    <h1 style="font-family:'Press Start 2P', cursive; text-align:center;">Rechercher un utilisateur</h1>
+
+    <input type="text" id="searchInput" placeholder="Tape un pseudo..." style="padding: 10px; font-size: 16px; width: 100%; border-radius: 12px; border: 1px solid #ccc;" />
+
+    <ul id="results" style="list-style:none; margin-top: 20px; padding: 0;"></ul>
+
+    <div style="text-align:center; margin-top: 30px;">
+      <a href="fr.html" class="btn">Retour à l'accueil</a>
+    </div>
+  </div>
+
+  <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
+
+  <script>
+    const token = localStorage.getItem("google_token");
+    if (!token) window.location.href = "index.html";
+
+    const profilePic = document.getElementById("profile-pic");
+    const profileContainer = document.getElementById("profile-container");
+
+    function decodeJwtResponse(token) {
+      let base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      return JSON.parse(jsonPayload);
+    }
+
+    const user = decodeJwtResponse(token);
+    profilePic.src = user.picture || "default-profile.png";
+    profileContainer.onclick = () => {
+      window.location.href = "settings.html";
+    };
+
+    const searchInput = document.getElementById("searchInput");
+    const results = document.getElementById("results");
+
+    let usersData = JSON.parse(localStorage.getItem("usersData") || "{}");
+
+    function renderResults(filteredUsers) {
+      results.innerHTML = "";
+      if (filteredUsers.length === 0) {
+        results.innerHTML = "<li>Aucun utilisateur trouvé.</li>";
+        return;
+      }
+      filteredUsers.forEach(u => {
+        const li = document.createElement("li");
+        li.style.padding = "10px";
+        li.style.borderBottom = "1px solid #ddd";
+        li.style.cursor = "pointer";
+        li.textContent = `${u.username} - ${u.bio || "Pas de bio"}`;
+        li.onclick = () => {
+          alert(`Profil de ${u.username}\nBio: ${u.bio || "Pas de bio"}`);
+          // Ici tu pourrais ouvrir une page de profil détaillée
+        };
+        results.appendChild(li);
+      });
+    }
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      if (query.length < 2) {
+        results.innerHTML = "<li>Tape au moins 2 caractères...</li>";
+        return;
+      }
+      let filtered = Object.values(usersData).filter(u => u.username.toLowerCase().includes(query));
+      renderResults(filtered);
+    });
+  </script>
+
 </body>
 </html>
