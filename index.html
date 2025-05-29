@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Connexion</title>
+  <title>Roxzy - Connextion</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -51,10 +51,14 @@
 
   <script>
     // Quand Google sign-in réussit, on déclenche reCAPTCHA invisible
-    function handleCredentialResponse(response) {
-      console.log("Encoded JWT ID token: " + response.credential);
-      grecaptcha.execute();
-    }
+function handleCredentialResponse(response) {
+  console.log("Encoded JWT ID token: " + response.credential);
+  // Ici tu peux envoyer le token au serveur si besoin
+
+  // Puis redirection vers fr.html
+  window.location.href = "fr.html";
+}
+
 
     // Quand reCAPTCHA valide, on soumet le formulaire
     function onSubmit(token) {
