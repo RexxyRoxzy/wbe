@@ -77,3 +77,67 @@
         reader.onload = function (e) {
           user.picture = e.target.result;
         };
+        reader.readAsDataURL(file);
+      });
+
+      document.getElementById("settingsForm").onsubmit = function (e) {
+        e.preventDefault();
+        const newPseudo = pseudoInput.value.trim();
+        if (newPseudo.length < 3) {
+          msg.textContent = "Pseudo trop court (min 3 caractères).";
+          return;
+        }
+        if (!isPseudoUnique(newPseudo, users, user.id)) {
+          msg.textContent = "Pseudo déjà pris, choisis-en un autre.";
+          return;
+        }
+        user.pseudo = newPseudo;
+        user.bio = bioInput.value.trim();
+
+        // Save back
+        localStorage.setItem("users", JSON.stringify(users));
+        msg.style.color = "green";
+        msg.textContent = "Modifications sauvegardées !";
+
+        setTimeout(() => {
+          msg.textContent = "";
+        }, 3000);
+      };
+
+      document.getElementById("logoutBtn").onclick = function () {
+        localStorage.removeItem("currentUserId");
+        window.location.href = "index.html";
+      };
+    };
+  </script>
+
+  <style>
+    form label {
+      color: white;
+      font-weight: bold;
+    }
+
+    input, textarea {
+      width: 100%;
+      max-width: 400px;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
+    }
+
+    body {
+      background: #121212;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .header a {
+      color: #00ffea;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</body>
+</html>
