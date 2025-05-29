@@ -2,159 +2,122 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Roxzy</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <title>Accueil - Roxzy</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <div class="header">
+  <header class="header">
     <img src="icon.png" alt="Logo" class="logo" />
     <span class="brand-name">roxzy</span>
-    <div id="profile" class="profile" title=""></div>
-  </div>
+    <div id="profile" class="profile"></div>
+  </header>
 
   <main class="main-content">
-    <h1>Welcome to Roxzy</h1>
-    <p>Helping you create awesome Discord bots and more.</p>
+    <h1>Bienvenue sur Roxzy</h1>
+    <p>Aide à créer des bots Discord, avec des polices stylées et plus encore.</p>
 
     <section>
-      <h2>Features</h2>
-      <ul>
-        <li>Create Discord bots easily</li>
-        <li>Cool fonts and styles included</li>
-        <li>Seamless Google Sign-In integration</li>
-        <li>And much more...</li>
-      </ul>
+      <input type="text" id="searchInput" placeholder="Rechercher un utilisateur par pseudo..." />
+      <ul id="searchResults"></ul>
     </section>
   </main>
 
-  <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
+  <footer class="footer">© 2025 Roxzy</footer>
 
   <script>
-    function decodeJwtResponse(token) {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      return JSON.parse(jsonPayload);
+    function loadCurrentUser() {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const currentUserId = localStorage.getItem("currentUserId");
+      if (!currentUserId) {
+        window.location.href = "index.html";
+        return null;
+      }
+      const user = users.find(u => u.id === currentUserId);
+      if (!user) {
+        window.location.href = "index.html";
+        return null;
+      }
+      return user;
+    }
+
+    function renderProfile(user) {
+      const profileDiv = document.getElementById("profile");
+      profileDiv.innerHTML = `
+        <a href="settings.html" title="${user.pseudo}">
+          <img src="${user.picture}" alt="Profile" class="profile-pic" />
+        </a>
+      `;
+    }
+
+    function searchUsers(term, users) {
+      term = term.toLowerCase();
+      return users.filter(u => u.pseudo.toLowerCase().includes(term));
+    }
+
+    function renderSearchResults(results) {
+      const ul = document.getElementById("searchResults");
+      ul.innerHTML = "";
+      if (results.length === 0) {
+        ul.innerHTML = "<li>No users found.</li>";
+        return;
+      }
+      results.forEach(user => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = `talk.html?user=${encodeURIComponent(user.pseudo)}`;
+        a.textContent = user.pseudo;
+        li.appendChild(a);
+        ul.appendChild(li);
+      });
     }
 
     window.onload = function () {
-      const token = localStorage.getItem("google_token");
+      const currentUser = loadCurrentUser();
+      if (!currentUser) return;
 
-      if (!token) {
-        window.location.href = "index.html";
-        return;
-      }
+      renderProfile(currentUser);
 
-      const user = decodeJwtResponse(token);
-      const profileDiv = document.getElementById("profile");
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
 
-      // Affiche seulement l'image et tooltip avec nom utilisateur
-      profileDiv.innerHTML = `
-        <a href="settings.html" title="${user.name}">
-          <img src="${user.picture}" alt="Profile Picture" class="profile-pic" />
-        </a>
-      `;
+      const searchInput = document.getElementById("searchInput");
+      searchInput.addEventListener("input", () => {
+        const results = searchUsers(searchInput.value, users);
+        renderSearchResults(results);
+      });
     };
   </script>
 
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      background: #121212;
-      color: #eee;
-      min-height: 100vh;
-    }
-
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 15px 20px;
-      background: #222;
-      position: fixed;
-      width: 100%;
-      top: 0;
-      z-index: 100;
-    }
-
-    .logo {
-      height: 48px;
-    }
-
-    .brand-name {
-      font-weight: 600;
-      font-size: 22px;
-      color: #fff;
-    }
-
-    .profile {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-    }
-
     .profile-pic {
       height: 36px;
       width: 36px;
       border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid #fff;
+      border: 2px solid white;
       cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-    .profile-pic:hover {
-      transform: scale(1.1);
     }
 
-    .main-content {
-      padding: 90px 20px 20px 20px;
-      max-width: 900px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    h1 {
-      font-family: 'Press Start 2P', cursive;
-      font-size: 32px;
-      margin-bottom: 20px;
-      color: white;
-    }
-
-    h2 {
-      margin-top: 40px;
-      color: white;
-    }
-
-    ul {
-      list-style-type: none;
-      padding: 0;
-      font-size: 18px;
-      line-height: 1.6;
-      color: #ccc;
-    }
-
-    ul li {
-      margin: 12px 0;
-    }
-
-    .footer {
-      text-align: center;
-      font-size: 12px;
-      padding: 12px;
-      background: #222;
-      color: #888;
-      position: fixed;
+    #searchInput {
       width: 100%;
-      bottom: 0;
+      max-width: 400px;
+      padding: 8px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    #searchResults {
+      margin-top: 10px;
+      list-style: none;
+      padding-left: 0;
+      color: white;
+    }
+
+    #searchResults li a {
+      color: #00ffea;
+      text-decoration: none;
+    }
+
+    #searchResults li a:hover {
+      text-decoration: underline;
     }
   </style>
 </body>
