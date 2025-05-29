@@ -2,16 +2,12 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Connexion - Roxzy</title>
+  <title>Connexion</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
-  
-  <!-- Google One Tap / Sign-In -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  
-  <!-- reCAPTCHA -->
   <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
@@ -23,16 +19,18 @@
   <div class="container">
     <div class="left">
       <div class="login-box">
-        <form id="loginForm" action="#" method="POST" onsubmit="return false;">
+        <form id="loginForm" action="/auth" method="POST">
           <div id="buttonDiv"></div>
-          <!-- reCAPTCHA invisible button -->
+
           <button
             id="recaptchaBtn"
             class="g-recaptcha"
             data-sitekey="6LeleU4rAAAAAM8_J9QzpRHtIQxJ2aQstW3-UQFZ"
             data-callback="onSubmit"
             data-size="invisible"
-            style="display: none;">
+            style="display:none"
+          >
+            Submit
           </button>
         </form>
       </div>
@@ -45,22 +43,23 @@
     </div>
   </div>
 
-  <footer class="footer">
-    © 2025 Roxzy. All Rights Reserved. Thanks Replit for The Idea!
-  </footer>
+  <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
 
   <script>
+    // Lorsque Google Sign-In réussit, on stocke le token et lance reCAPTCHA invisible
     function handleCredentialResponse(response) {
-      console.log("Encoded JWT ID token: " + response.credential);
-      // Ici tu peux envoyer le token au serveur si besoin
-
-      // Déclencher reCAPTCHA invisible avant la soumission finale
+      console.log("Encoded JWT ID token: ", response.credential);
+      localStorage.setItem("google_token", response.credential);
       grecaptcha.execute();
     }
 
+    // Callback reCAPTCHA : on soumet le formulaire et on redirige après délai
     function onSubmit(token) {
-      // Une fois que reCAPTCHA est validé, rediriger vers fr.html
-      window.location.href = "fr.html";
+      // Si tu veux envoyer le token reCAPTCHA au serveur, ajoute-le dans le form ici
+      // Par exemple : document.getElementById("loginForm").submit();
+      setTimeout(() => {
+        window.location.href = "fr.html";
+      }, 300);
     }
 
     window.onload = function () {
@@ -74,9 +73,6 @@
         size: "large",
         shape: "pill",
       });
-
-      // Optionnel : activer Google One Tap
-      // google.accounts.id.prompt();
     };
   </script>
 </body>
