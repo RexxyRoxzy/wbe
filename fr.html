@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Bienvenue sur Roxzy</title>
+  <title>Roxzy</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
@@ -12,7 +12,7 @@
   <div class="header">
     <img src="icon.png" alt="Logo" class="logo" />
     <span class="brand-name">roxzy</span>
-    <div id="profile" class="profile"></div>
+    <div id="profile" class="profile" title=""></div>
   </div>
 
   <main class="main-content">
@@ -33,16 +33,13 @@
   <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
 
   <script>
-    // Fonction pour décoder le token JWT Google (payload base64)
     function decodeJwtResponse(token) {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
         atob(base64)
           .split('')
-          .map(function (c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          })
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
           .join('')
       );
       return JSON.parse(jsonPayload);
@@ -52,17 +49,18 @@
       const token = localStorage.getItem("google_token");
 
       if (!token) {
-        // Pas connecté, redirection vers index.html
         window.location.href = "index.html";
         return;
       }
 
       const user = decodeJwtResponse(token);
-
       const profileDiv = document.getElementById("profile");
+
+      // Affiche seulement l'image et tooltip avec nom utilisateur
       profileDiv.innerHTML = `
-        <img src="${user.picture}" alt="Profile Picture" class="profile-pic" />
-        <span class="profile-name">${user.name}</span>
+        <a href="settings.html" title="${user.name}">
+          <img src="${user.picture}" alt="Profile Picture" class="profile-pic" />
+        </a>
       `;
     };
   </script>
@@ -102,7 +100,6 @@
       margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 8px;
     }
 
     .profile-pic {
@@ -111,12 +108,11 @@
       border-radius: 50%;
       object-fit: cover;
       border: 2px solid #fff;
+      cursor: pointer;
+      transition: transform 0.3s ease;
     }
-
-    .profile-name {
-      font-weight: 600;
-      font-size: 16px;
-      color: #fff;
+    .profile-pic:hover {
+      transform: scale(1.1);
     }
 
     .main-content {
