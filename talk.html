@@ -2,112 +2,195 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Discussion - Roxzy</title>
+  <title>Talk - Roxzy</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    /* Styles spécifiques chat */
+    body, html {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Inter', sans-serif;
+      background: #f7f7f7;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      background: #000;
+      color: white;
+      font-family: 'Press Start 2P', cursive;
+      position: relative;
+      z-index: 10;
+    }
+    .logo {
+      height: 48px;
+      margin-right: 10px;
+    }
+    .brand-name {
+      font-size: 20px;
+      color: white;
+      flex-grow: 1;
+    }
+    #profile-pic {
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+    #chat-container {
+      flex-grow: 1;
+      padding: 20px;
+      overflow-y: auto;
+      background: white;
+      border-top: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+    }
+    .message {
+      max-width: 70%;
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 15px;
+      font-size: 14px;
+      line-height: 1.3;
+      word-wrap: break-word;
+    }
+    .message.self {
+      background: #000;
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 0;
+    }
+    .message.other {
+      background: #e1e1e1;
+      color: black;
+      margin-right: auto;
+      border-bottom-left-radius: 0;
+    }
+    #input-container {
+      display: flex;
+      padding: 10px 20px;
+      gap: 10px;
+      background: #eee;
+    }
+    #message-input {
+      flex-grow: 1;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      outline: none;
+    }
+    #send-btn {
+      background: #000;
+      color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.3s ease;
+    }
+    #send-btn:hover {
+      background: #444;
+    }
+  </style>
 </head>
 <body>
-  <header class="header">
-    <a href="fr.html">← Retour</a>
-    <h1 id="chatTitle">Discussion</h1>
-  </header>
 
-  <main class="main-content">
-    <div id="userInfo" style="display:flex; align-items:center; gap:10px; margin-bottom:20px;"></div>
+  <div class="header">
+    <img src="icon.png" alt="Logo" class="logo" />
+    <span class="brand-name">roxzy Chat</span>
+    <img id="profile-pic" src="" alt="Profil" title="Settings" />
+  </div>
 
-    <div id="chatMessages" style="height: 300px; overflow-y: auto; background:#222; padding:10px; border-radius:8px; color:white;"></div>
+  <div id="chat-container"></div>
 
-    <form id="chatForm" style="margin-top: 10px;">
-      <input type="text" id="chatInput" placeholder="Écrire un message..." autocomplete="off" required style="width: 80%; padding: 8px; border-radius: 6px; border:none;" />
-      <button type="submit" style="padding: 8px 12px; border-radius: 6px; border:none; background:#00ffea; color:#000; font-weight:bold; cursor:pointer;">Envoyer</button>
-    </form>
-  </main>
-
-  <footer class="footer">© 2025 Roxzy</footer>
+  <div id="input-container">
+    <input type="text" id="message-input" placeholder="Écris un message..." autocomplete="off" />
+    <button id="send-btn">Envoyer</button>
+  </div>
 
   <script>
-    function getUserByPseudo(pseudo) {
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      return users.find(u => u.pseudo.toLowerCase() === pseudo.toLowerCase());
+    // Récupérer token Google
+    const token = localStorage.getItem("google_token");
+    if (!token) {
+      window.location.href = "index.html";
     }
 
-    function loadCurrentUser() {
-      const currentUserId = localStorage.getItem("currentUserId");
-      if (!currentUserId) {
-        window.location.href = "index.html";
-        return null;
-      }
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
-      return users.find(u => u.id === currentUserId);
+    function decodeJwtResponse(token) {
+      let base64Url = token.split('.')[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      ).join(''));
+      return JSON.parse(jsonPayload);
     }
 
-    function getChatKey(user1, user2) {
-      // Cle unique par paire d'utilisateurs, ordre alphabétique
-      const arr = [user1.toLowerCase(), user2.toLowerCase()].sort();
-      return `chat_${arr[0]}_${arr[1]}`;
-    }
+    const user = decodeJwtResponse(token);
 
-    window.onload = function () {
-      const params = new URLSearchParams(window.location.search);
-      const targetPseudo = params.get("user");
-      if (!targetPseudo) {
-        alert("Utilisateur introuvable");
-        window.location.href = "fr.html";
-        return;
-      }
-
-      const targetUser = getUserByPseudo(targetPseudo);
-      if (!targetUser) {
-        alert("Utilisateur introuvable");
-        window.location.href = "fr.html";
-        return;
-      }
-
-      const currentUser = loadCurrentUser();
-      if (!currentUser) return;
-
-      // Affiche infos user cible
-      const userInfoDiv = document.getElementById("userInfo");
-      userInfoDiv.innerHTML = `
-        <img src="${targetUser.picture}" alt="Avatar" style="height:50px; width:50px; border-radius:50%;" />
-        <div>
-          <strong>${targetUser.pseudo}</strong><br />
-          <small>${targetUser.bio || "Pas de bio"}</small>
-        </div>
-      `;
-
-      document.getElementById("chatTitle").textContent = `Discussion avec ${targetUser.pseudo}`;
-
-      const chatMessagesDiv = document.getElementById("chatMessages");
-      const chatForm = document.getElementById("chatForm");
-      const chatInput = document.getElementById("chatInput");
-
-      const chatKey = getChatKey(currentUser.pseudo, targetUser.pseudo);
-      let messages = JSON.parse(localStorage.getItem(chatKey) || "[]");
-
-      function renderMessages() {
-        chatMessagesDiv.innerHTML = "";
-        messages.forEach(m => {
-          const div = document.createElement("div");
-          div.textContent = `${m.from}: ${m.text}`;
-          div.style.marginBottom = "6px";
-          div.style.color = (m.from === currentUser.pseudo) ? "#00ffea" : "white";
-          chatMessagesDiv.appendChild(div);
-        });
-        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-      }
-
-      renderMessages();
-
-      chatForm.onsubmit = function (e) {
-        e.preventDefault();
-        const text = chatInput.value.trim();
-        if (!text) return;
-        messages.push({ from: currentUser.pseudo, text });
-        localStorage.setItem(chatKey, JSON.stringify(messages));
-        chatInput.value = "";
-        renderMessages();
-      };
+    // Afficher la photo profil
+    const profilePic = document.getElementById("profile-pic");
+    profilePic.src = user.picture || "default-profile.png";
+    profilePic.onclick = () => {
+      window.location.href = "settings.html";
     };
+
+    // Chat container
+    const chatContainer = document.getElementById("chat-container");
+    const input = document.getElementById("message-input");
+    const sendBtn = document.getElementById("send-btn");
+
+    // Clé localStorage pour les messages du chat (simple)
+    const chatKey = "roxzy_chat_messages";
+
+    // Charger les messages
+    let messages = JSON.parse(localStorage.getItem(chatKey) || "[]");
+
+    function renderMessages() {
+      chatContainer.innerHTML = "";
+      messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.classList.add("message");
+        div.classList.add(msg.sender === user.sub ? "self" : "other");
+        div.textContent = msg.text;
+        chatContainer.appendChild(div);
+      });
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    renderMessages();
+
+    function addMessage(text) {
+      messages.push({
+        sender: user.sub,
+        text: text.trim(),
+        timestamp: Date.now()
+      });
+      localStorage.setItem(chatKey, JSON.stringify(messages));
+      renderMessages();
+    }
+
+    sendBtn.addEventListener("click", () => {
+      if (input.value.trim() === "") return;
+      addMessage(input.value);
+      input.value = "";
+      input.focus();
+    });
+
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
   </script>
+
 </body>
 </html>
