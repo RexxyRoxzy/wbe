@@ -7,14 +7,73 @@
 </head>
 <body>
   <header class="header">
-    <a href="fr.html">← Back</a>
-    <h1>Settings</h1>
+    <a href="fr.html">← Retour</a>
+    <h1>Paramètres du compte</h1>
   </header>
 
   <main class="main-content">
-    <p>Page pour modifier photo de profil, pseudo et bio (à implémenter)</p>
+    <form id="settingsForm">
+      <label>
+        Pseudo:<br />
+        <input type="text" id="pseudoInput" required minlength="3" />
+      </label>
+      <br /><br />
+      <label>
+        Bio:<br />
+        <textarea id="bioInput" rows="4" placeholder="Ta bio ici..."></textarea>
+      </label>
+      <br /><br />
+      <label>
+        Photo de profil:<br />
+        <input type="file" id="avatarInput" accept="image/*" />
+      </label>
+      <br /><br />
+      <button type="submit">Sauvegarder</button>
+    </form>
+    <br />
+    <button id="logoutBtn">Se déconnecter</button>
+    <p id="msg" style="color:red;"></p>
   </main>
 
   <footer class="footer">© 2025 Roxzy</footer>
-</body>
-</html>
+
+  <script>
+    function loadCurrentUser() {
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const currentUserId = localStorage.getItem("currentUserId");
+      if (!currentUserId) {
+        window.location.href = "index.html";
+        return null;
+      }
+      const user = users.find(u => u.id === currentUserId);
+      if (!user) {
+        window.location.href = "index.html";
+        return null;
+      }
+      return {user, users};
+    }
+
+    function isPseudoUnique(pseudo, users, currentUserId) {
+      return !users.some(u => u.pseudo.toLowerCase() === pseudo.toLowerCase() && u.id !== currentUserId);
+    }
+
+    window.onload = function () {
+      const data = loadCurrentUser();
+      if (!data) return;
+      const {user, users} = data;
+
+      const pseudoInput = document.getElementById("pseudoInput");
+      const bioInput = document.getElementById("bioInput");
+      const avatarInput = document.getElementById("avatarInput");
+      const msg = document.getElementById("msg");
+
+      pseudoInput.value = user.pseudo;
+      bioInput.value = user.bio;
+
+      avatarInput.addEventListener("change", () => {
+        const file = avatarInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          user.picture = e.target.result;
+        };
