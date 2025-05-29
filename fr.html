@@ -1,184 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Roxzy - Dashboard</title>
+  <title>Bienvenue sur Roxzy</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="styles.css" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet" />
-  
-  <!-- Google API for fetching user profile -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <div class="header">
+    <img src="icon.png" alt="Logo" class="logo" />
+    <span class="brand-name">roxzy</span>
+    <div id="profile" class="profile"></div>
+  </div>
+
+  <main class="main-content">
+    <h1>Welcome to Roxzy</h1>
+    <p>Helping you create awesome Discord bots and more.</p>
+
+    <section>
+      <h2>Features</h2>
+      <ul>
+        <li>Create Discord bots easily</li>
+        <li>Cool fonts and styles included</li>
+        <li>Seamless Google Sign-In integration</li>
+        <li>And much more...</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">© 2025 Roxzy. All Rights Reserved. Thank's Replit for The Idea !</footer>
+
+  <script>
+    // Fonction pour décoder le token JWT Google (payload base64)
+    function decodeJwtResponse(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+          })
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    }
+
+    window.onload = function () {
+      const token = localStorage.getItem("google_token");
+
+      if (!token) {
+        // Pas connecté, redirection vers index.html
+        window.location.href = "index.html";
+        return;
+      }
+
+      const user = decodeJwtResponse(token);
+
+      const profileDiv = document.getElementById("profile");
+      profileDiv.innerHTML = `
+        <img src="${user.picture}" alt="Profile Picture" class="profile-pic" />
+        <span class="profile-name">${user.name}</span>
+      `;
+    };
+  </script>
 
   <style>
     body {
       font-family: 'Inter', sans-serif;
       margin: 0;
       background: #121212;
-      color: white;
-      height: 100vh;
-      overflow: auto;
+      color: #eee;
+      min-height: 100vh;
     }
 
     .header {
       display: flex;
       align-items: center;
-      padding: 10px 20px;
+      gap: 10px;
+      padding: 15px 20px;
       background: #222;
-      position: sticky;
+      position: fixed;
+      width: 100%;
       top: 0;
       z-index: 100;
     }
 
     .logo {
       height: 48px;
-      margin-right: 10px;
     }
 
     .brand-name {
-      font-weight: 700;
-      font-size: 1.5rem;
-      margin-right: auto;
+      font-weight: 600;
+      font-size: 22px;
+      color: #fff;
     }
 
     .profile {
+      margin-left: auto;
       display: flex;
       align-items: center;
-      gap: 10px;
-      cursor: default;
+      gap: 8px;
     }
 
-    .profile img {
+    .profile-pic {
+      height: 36px;
+      width: 36px;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      object-fit: cover;
+      border: 2px solid #fff;
     }
 
-    main {
-      padding: 40px 20px;
+    .profile-name {
+      font-weight: 600;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    .main-content {
+      padding: 90px 20px 20px 20px;
       max-width: 900px;
       margin: 0 auto;
+      text-align: center;
     }
 
     h1 {
       font-family: 'Press Start 2P', cursive;
-      font-size: 2rem;
+      font-size: 32px;
       margin-bottom: 20px;
-      color: #00ffd5;
-      text-align: center;
+      color: #00ffea;
     }
 
-    p {
-      font-size: 1.2rem;
-      line-height: 1.5;
-      max-width: 700px;
-      margin: 0 auto 40px auto;
-      text-align: center;
+    h2 {
+      margin-top: 40px;
+      color: #00ffd1;
     }
 
-    .features {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-
-    .feature-card {
-      background: #1e1e1e;
-      border-radius: 8px;
-      padding: 20px;
-      width: 280px;
-      box-shadow: 0 0 15px #00ffd5aa;
-      transition: transform 0.3s ease;
-      cursor: default;
-    }
-
-    .feature-card:hover {
-      transform: scale(1.05);
-    }
-
-    .feature-card h2 {
-      font-family: 'Press Start 2P', cursive;
-      font-size: 1rem;
-      margin-bottom: 10px;
-      color: #00ffd5;
-    }
-
-    .feature-card p {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
+    ul {
+      list-style-type: none;
+      padding: 0;
+      font-size: 18px;
+      line-height: 1.6;
       color: #ccc;
     }
+
+    ul li {
+      margin: 12px 0;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      padding: 12px;
+      background: #222;
+      color: #888;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
   </style>
-</head>
-<body>
-  <header class="header">
-    <img src="icon.png" alt="Logo" class="logo" />
-    <span class="brand-name">roxzy</span>
-
-    <div class="profile" id="profile">
-      <!-- Photo profil + nom ici -->
-    </div>
-  </header>
-
-  <main>
-    <h1>Help to Create Discord Bots</h1>
-    <p>
-      Welcome to Roxzy Dashboard! Here you can find resources, guides, and cool fonts to build amazing Discord bots with ease.
-    </p>
-
-    <div class="features">
-      <div class="feature-card">
-        <h2>Easy Bot Setup</h2>
-        <p>Follow step-by-step tutorials to quickly create your own Discord bots.</p>
-      </div>
-      <div class="feature-card">
-        <h2>API Integration</h2>
-        <p>Integrate popular APIs seamlessly to enhance your bots' functionality.</p>
-      </div>
-      <div class="feature-card">
-        <h2>Custom Fonts</h2>
-        <p>Use unique and cool fonts to give your bots personality and style.</p>
-      </div>
-      <div class="feature-card">
-        <h2>Community Support</h2>
-        <p>Join our community forums to share and learn from other bot creators.</p>
-      </div>
-    </div>
-  </main>
-
-  <script>
-    // Récupérer le token de session Google stocké
-    // Ici tu devras adapter selon comment tu stockes le token, 
-    // pour cet exemple on va juste récupérer le profil via Google API One Tap
-
-    function decodeJwtResponse(token) {
-      var base64Url = token.split('.')[1];
-      var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-      return JSON.parse(jsonPayload);
-    }
-
-    // Dans un vrai projet, tu stockes le token en localStorage/sessionStorage ou via serveur
-    // Ici on va faire un prompt pour simuler, sinon tu peux envoyer le token via URL, etc.
-
-    // Exemple simple : récupère un token stocké dans localStorage sous 'google_token'
-    const token = localStorage.getItem('google_token');
-    if (!token) {
-      // Si pas connecté, on redirige vers index.html
-      window.location.href = "index.html";
-    } else {
-      const user = decodeJwtResponse(token);
-      // Affiche le profil en haut à droite
-      const profileDiv = document.getElementById('profile');
-      profileDiv.innerHTML = `
-        <img src="${user.picture}" alt="Profile Picture" />
-        <span>${user.name}</span>
-      `;
-    }
-  </script>
 </body>
 </html>
